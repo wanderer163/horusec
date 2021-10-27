@@ -16,8 +16,8 @@ package formatters
 
 import (
 	"fmt"
-	"os"
 	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -91,14 +91,7 @@ func (s *Service) GetCommitAuthor(line, filePath string) commitauthor.CommitAuth
 }
 
 func (s *Service) GetConfigProjectPath() string {
-	return file.ReplacePathSeparator(
-		fmt.Sprintf(
-			"%s/%s/%s",
-			s.config.ProjectPath,
-			".horusec",
-			s.analysis.ID.String(),
-		),
-	)
+	return filepath.Join(s.config.ProjectPath, ".horusec", s.analysis.ID.String())
 }
 
 func (s *Service) AddWorkDirInCmd(cmd, projectSubPath string, tool tools.Tool) string {
@@ -146,12 +139,12 @@ func (s *Service) addAnalysisError(err error) {
 	}
 }
 
-func (s *Service) RemoveSrcFolderFromPath(filepath string) string {
-	if filepath == "" || len(filepath) <= 4 || !strings.Contains(filepath[:4], "src") {
-		return filepath
+func (s *Service) RemoveSrcFolderFromPath(pathFromFile string) string {
+	if pathFromFile == "" || len(pathFromFile) <= 4 || !strings.Contains(pathFromFile[:4], "src") {
+		return pathFromFile
 	}
 
-	return filepath[5:]
+	return pathFromFile[5:]
 }
 
 func (s *Service) GetCodeWithMaxCharacters(code string, column int) string {
@@ -187,21 +180,10 @@ func (s *Service) truncatedCode(code string, column int) string {
 }
 
 func (s *Service) GetFilepathFromFilename(filename, projectSubPath string) string {
-	basePath := file.ReplacePathSeparator(path.Join(s.GetConfigProjectPath(), projectSubPath))
-	filepath := file.GetPathFromFilename(filename, basePath)
-	if filepath != "" {
-		return path.Join(projectSubPath, filepath[1:])
-	}
+	basePath := filepath.Join(s.GetConfigProjectPath(), projectSubPath)
+	filepathWithFileName := file.GetPathFromFilename(filename, basePath)
 
-	return path.Join(projectSubPath, filepath)
-}
-
-func (s *Service) GetProjectPathWithWorkdir(projectSubPath string) string {
-	if projectSubPath != "" && projectSubPath[0:1] == string(os.PathSeparator) {
-		return fmt.Sprintf("%s%s", s.GetConfigProjectPath(), projectSubPath)
-	}
-
-	return fmt.Sprintf("%s%s%s", s.GetConfigProjectPath(), string(os.PathSeparator), projectSubPath)
+	return path.Join(projectSubPath, filepathWithFileName)
 }
 
 func (s *Service) SetCommitAuthor(vuln *vulnerability.Vulnerability) *vulnerability.Vulnerability {
@@ -217,15 +199,13 @@ func (s *Service) SetCommitAuthor(vuln *vulnerability.Vulnerability) *vulnerabil
 }
 
 func (s *Service) ParseFindingsToVulnerabilities(findings []engine.Finding, tool tools.Tool,
-	language languages.Language) error {
+	language languages.Language) {
 	for index := range findings {
 		vuln := s.newVulnerabilityFromFinding(&findings[index], tool, language)
 		vuln = s.SetCommitAuthor(vuln)
 		vuln = vulnhash.Bind(vuln)
 		s.AddNewVulnerabilityIntoAnalysis(vuln)
 	}
-
-	return nil
 }
 
 func (s *Service) AddNewVulnerabilityIntoAnalysis(vuln *vulnerability.Vulnerability) {
@@ -253,17 +233,9 @@ func (s *Service) newVulnerabilityFromFinding(finding *engine.Finding, tool tool
 	}
 }
 
-func (s *Service) removeHorusecFolder(filepath string) string {
+func (s *Service) removeHorusecFolder(pathFromFile string) string {
 	toRemove := fmt.Sprintf("%s/", s.GetConfigProjectPath())
-	return strings.ReplaceAll(filepath, toRemove, "")
-}
-
-func (s *Service) IsDockerDisabled() bool {
-	return s.config.DisableDocker
-}
-
-func (s *Service) GetCustomRulesByLanguage(lang languages.Language) []engine.Rule {
-	return s.customRules.Load(lang)
+	return strings.ReplaceAll(pathFromFile, toRemove, "")
 }
 
 func (s *Service) GetConfigCMDByFileExtension(projectSubPath, imageCmd, ext string, tool tools.Tool) string {
@@ -275,6 +247,19 @@ func (s *Service) GetConfigCMDByFileExtension(projectSubPath, imageCmd, ext stri
 	}
 
 	return s.AddWorkDirInCmd(imageCmd, projectSubPath, tool)
+}
+
+// NOTE(iancardosozup): i think this functions below could be erased from service interface
+// since they only get a value that could be accessed directly
+func (s *Service) GetProjectPathWithWorkdir(projectSubPath string) string {
+	return filepath.Join(s.GetConfigProjectPath(), projectSubPath)
+}
+func (s *Service) IsDockerDisabled() bool {
+	return s.config.DisableDocker
+}
+
+func (s *Service) GetCustomRulesByLanguage(lang languages.Language) []engine.Rule {
+	return s.customRules.Load(lang)
 }
 
 func (s *Service) GetCustomImageByLanguage(language languages.Language) string {
