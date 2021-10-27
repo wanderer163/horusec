@@ -62,7 +62,7 @@ func TestValidateConfigs(t *testing.T) {
 
 		err := useCases.ValidateConfig(cfg)
 		assert.Error(t, err)
-		expected := "severities_to_ignore: Type of severity not valid:  test. See severities enable: [CRITICAL HIGH MEDIUM LOW UNKNOWN INFO]."
+		expected := "severities_to_ignore: test Type of severity not valid. See severities enable: [CRITICAL HIGH MEDIUM LOW UNKNOWN INFO]."
 		assert.Equal(t, expected, err.Error())
 	})
 	t.Run("Should return error when invalid json output file is empty", func(t *testing.T) {
@@ -73,7 +73,7 @@ func TestValidateConfigs(t *testing.T) {
 
 		err := useCases.ValidateConfig(cfg)
 		assert.Error(t, err)
-		assert.Equal(t, "json_output_file_path: Output File path is required or is invalid: not valid file of type .json.",
+		assert.Equal(t, "json_output_file_path: Output File path not valid file of type: .json.",
 			err.Error())
 	})
 	t.Run("Should return error when invalid json output file is invalid", func(t *testing.T) {
@@ -84,7 +84,7 @@ func TestValidateConfigs(t *testing.T) {
 
 		err := useCases.ValidateConfig(cfg)
 		assert.Error(t, err)
-		assert.Equal(t, "json_output_file_path: Output File path is required or is invalid: not valid file of type .json.",
+		assert.Equal(t, "json_output_file_path: Output File path not valid file of type: .json.",
 			err.Error())
 	})
 	t.Run("Should return error when the text output file is invalid", func(t *testing.T) {
@@ -96,7 +96,7 @@ func TestValidateConfigs(t *testing.T) {
 
 		err := useCases.ValidateConfig(cfg)
 		assert.Error(t, err)
-		assert.EqualError(t, err, "json_output_file_path: Output File path is required or is invalid: not valid file of type .txt.")
+		assert.EqualError(t, err, "json_output_file_path: Output File path not valid file of type: .txt.")
 	})
 	t.Run("Should not return error when the text output file is valid", func(t *testing.T) {
 		cfg := config.New()
