@@ -359,45 +359,51 @@ func NewInsecureWebViewImplementation() text.TextRule {
 		},
 		Type: text.AndMatch,
 		Expressions: []*regexp.Regexp{
-			regexp.MustCompile(`setScriptEnabled\(true\)`),
-			regexp.MustCompile(`.addscriptInterface\(`),
+			regexp.MustCompile(`setJavaScriptEnabled\(true\)`),
+			regexp.MustCompile(`.addJavascriptInterface\(`),
 		},
 	}
 }
 
-func NewNoUseSQLCipherAndMatch() text.TextRule {
-	return text.TextRule{
-		Metadata: engine.Metadata{
-			ID:          "HS-JAVA-20",
-			Name:        "No Use SQL Cipher",
-			Description: "This App uses SQL Cipher. SQLCipher provides 256-bit AES encryption to sqlite database files",
-			Severity:    severities.Medium.ToString(),
-			Confidence:  confidence.High.ToString(),
-		},
-		Type: text.AndMatch,
-		Expressions: []*regexp.Regexp{
-			regexp.MustCompile(`SQLiteDatabase.loadLibs\(`),
-			regexp.MustCompile(`net.sqlcipher`),
-		},
-	}
-}
+// DEPRECATED This doesn't seem to be a valid vulnerability, removed to avoid false positives.
+//
+//func NewNoUseSQLCipherAndMatch() text.TextRule {
+//	return text.TextRule{
+//		Metadata: engine.Metadata{
+//			ID:          "HS-JAVA-20",
+//			Name:        "No Use SQL Cipher",
+//			Description: "This App uses SQL Cipher. SQLCipher provides 256-bit AES encryption to sqlite database files",
+//			Severity:    severities.Medium.ToString(),
+//			Confidence:  confidence.High.ToString(),
+//		},
+//		Type: text.AndMatch,
+//		Expressions: []*regexp.Regexp{
+//			regexp.MustCompile(`SQLiteDatabase.loadLibs\(`),
+//			regexp.MustCompile(`net.sqlcipher`),
+//		},
+//	}
+//}
 
-func NewNoUseRealmDatabaseWithEncryptionKey() text.TextRule {
-	return text.TextRule{
-		Metadata: engine.Metadata{
-			ID:          "HS-JAVA-21",
-			Name:        "No Use Realm Database With Encryption Key",
-			Description: "This App use Realm Database with encryption",
-			Severity:    severities.Medium.ToString(),
-			Confidence:  confidence.Medium.ToString(),
-		},
-		Type: text.AndMatch,
-		Expressions: []*regexp.Regexp{
-			regexp.MustCompile(`io.realm.Realm`),
-			regexp.MustCompile(`.encryptionKey\(`),
-		},
-	}
-}
+// DEPRECATED This vulnerability should search for a hardcoded secret, the actual implemented way
+// will only lead to false positives, leaks engine already does a search for hardcoded credentials.
+// reference: https://rules.sonarsource.com/java/type/Vulnerability/RSPEC-6301?search=realm
+//
+//func NewNoUseRealmDatabaseWithEncryptionKey() text.TextRule {
+//	return text.TextRule{
+//		Metadata: engine.Metadata{
+//			ID:          "HS-JAVA-21",
+//			Name:        "No Use Realm Database With Encryption Key",
+//			Description: "This App use Realm Database with encryption",
+//			Severity:    severities.Medium.ToString(),
+//			Confidence:  confidence.Medium.ToString(),
+//		},
+//		Type: text.AndMatch,
+//		Expressions: []*regexp.Regexp{
+//			regexp.MustCompile(`io.realm.Realm`),
+//			regexp.MustCompile(`.encryptionKey\(`),
+//		},
+//	}
+//}
 
 func NewNoUseWebviewDebuggingEnable() text.TextRule {
 	return text.TextRule{
@@ -1776,7 +1782,7 @@ func NewNoWriteExternalContent() text.TextRule {
 		},
 		Type: text.OrMatch,
 		Expressions: []*regexp.Regexp{
-			regexp.MustCompile(`.getExternalStorage`),
+			regexp.MustCompile(`.getExternalStorage\(`),
 			regexp.MustCompile(`.getExternalFilesDir\(`),
 		},
 	}

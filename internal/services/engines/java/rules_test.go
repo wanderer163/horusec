@@ -207,6 +207,48 @@ func TestRulesVulnerableCode(t *testing.T) {
 			},
 		},
 		{
+			Name: "HS-JAVA-18",
+			Rule: NewWebViewLoadFilesFromExternalStorage(),
+			Src:  SampleVulnerableHSJAVA18,
+			Findings: []engine.Finding{
+				{
+					CodeSample: "WebView.loadUrl(\"file://\"+Environment.getExternalStorageDirectory().getAbsolutePath()+\"dangerZone.html\");",
+					SourceLocation: engine.Location{
+						Line:   6,
+						Column: 9,
+					},
+				},
+			},
+		},
+		{
+			Name: "HS-JAVA-19",
+			Rule: NewInsecureWebViewImplementation(),
+			Src:  SampleVulnerableHSJAVA19,
+			Findings: []engine.Finding{
+				{
+					CodeSample: "webSettings.setJavaScriptEnabled(true);",
+					SourceLocation: engine.Location{
+						Line:   16,
+						Column: 14,
+					},
+				},
+			},
+		},
+		{
+			Name: "HS-JAVA-22",
+			Rule: NewNoUseWebviewDebuggingEnable(),
+			Src:  SampleVulnerableHSJAVA22,
+			Findings: []engine.Finding{
+				{
+					CodeSample: "this.setWebContentsDebuggingEnabled(true);",
+					SourceLocation: engine.Location{
+						Line:   7,
+						Column: 7,
+					},
+				},
+			},
+		},
+		{
 			Name: "HS-JAVA-111",
 			Rule: NewWeakHash(),
 			Src:  SampleVulnerableHSJAVA111,
@@ -372,6 +414,21 @@ func TestRulesSafeCode(t *testing.T) {
 			Name: "HS-JAVA-14",
 			Rule: NewServerHostnamesShouldBeVerifiedDuringSSLTLSConnectionsWithMail(),
 			Src:  SampleSafeHSJAVA14,
+		},
+		{
+			Name: "HS-JAVA-18",
+			Rule: NewWebViewLoadFilesFromExternalStorage(),
+			Src:  SampleSafeHSJAVA18,
+		},
+		{
+			Name: "HS-JAVA-19",
+			Rule: NewInsecureWebViewImplementation(),
+			Src:  SampleSafeHSJAVA19,
+		},
+		{
+			Name: "HS-JAVA-22",
+			Rule: NewNoUseWebviewDebuggingEnable(),
+			Src:  SampleSafeHSJAVA22,
 		},
 		{
 			Name: "HS-JAVA-111",

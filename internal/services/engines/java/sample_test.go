@@ -413,6 +413,97 @@ public class Foo {
 }
 	`
 
+	SampleVulnerableHSJAVA18 = `
+import android.webkit.WebView;
+
+public class Foo {
+	public void Bar() {
+		WebView.loadUrl("file://"+Environment.getExternalStorageDirectory().getAbsolutePath()+"dangerZone.html");
+	}
+}
+	`
+
+	SampleSafeHSJAVA18 = `
+import android.webkit.WebView;
+
+public class Foo {
+	public void Bar() {
+			myWebView.loadUrl("https://www.example.com");
+		});
+	}
+}
+	`
+
+	SampleVulnerableHSJAVA19 = `
+package com.example.root.vulnerableapp;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundler;
+import android.webkit.WebView;
+import android.webkit.WebSettings;
+
+public class MainActivity extends AppCompatActivity {
+	@Override
+	protected void onCreate(Bundler savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		set.ContentView(R.layout.activity_main);
+		
+		WebView myWEbView = (WebView) findViewById(R.id.webview);
+		WebSettings webSettings = myWebView.getSettings();
+		webSettings.setJavaScriptEnabled(true);
+
+		myWebView.addJavascriptInterface(new WebAppInterface(this), "Android");
+		myWebView.loadUrl("http://10.0.0.2");
+	}
+}
+	`
+
+	SampleSafeHSJAVA19 = `
+package com.example.root.vulnerableapp;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundler;
+import android.webkit.WebView;
+import android.webkit.WebSettings;
+
+public class MainActivity extends AppCompatActivity {
+	@Override
+	protected void onCreate(Bundler savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		set.ContentView(R.layout.activity_main);
+		
+		WebView myWEbView = (WebView) findViewById(R.id.webview);
+		WebSettings webSettings = myWebView.getSettings();
+
+		myWebView.loadUrl("http://10.0.0.2");
+	}
+}
+	`
+
+	SampleVulnerableHSJAVA22 = `
+public class Foo {
+	Java.perform(function() {
+	   var Webview = Java.use("android.webkit.WebView")
+	   Webview.onTouchEvent.overload("android.view.MotionEvent").implementation = 
+	   function(touchEvent) {
+		 this.setWebContentsDebuggingEnabled(true);
+		 this.onTouchEvent.overload("android.view.MotionEvent").call(this, touchEvent);
+	   }
+	});
+}
+	`
+
+	SampleSafeHSJAVA22 = `
+public class Foo {
+	Java.perform(function() {
+	   var Webview = Java.use("android.webkit.WebView")
+	   Webview.onTouchEvent.overload("android.view.MotionEvent").implementation = 
+	   function(touchEvent) {
+		 this.setWebContentsDebuggingEnabled(false);
+		 this.onTouchEvent.overload("android.view.MotionEvent").call(this, touchEvent);
+	   }
+	});
+}
+	`
+
 	SampleVulnerableHSJAVA111 = `
 public class Foo {
 	public void Bar() {
